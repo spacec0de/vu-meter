@@ -79,14 +79,21 @@ internal sealed class AudioCapture : IDisposable
         double rmsL = Math.Sqrt(sumL / count);
         double rmsR = Math.Sqrt(sumR / count);
 
-        // Map to 0..1 using a dB scale: -60 dB floor
-        left  = DbToLinear(20 * Math.Log10(Math.Max(rmsL, 1e-6)));
-        right = DbToLinear(20 * Math.Log10(Math.Max(rmsR, 1e-6)));
+        left  = DbFsToVuPosition(20 * Math.Log10(Math.Max(rmsL, 1e-6)));
+        right = DbFsToVuPosition(20 * Math.Log10(Math.Max(rmsR, 1e-6)));
     }
 
-    // Maps dB range [-60, 0] to [0, 1]
-    private static double DbToLinear(double db) =>
-        Math.Clamp((db + 60.0) / 60.0, 0.0, 1.0);
+    // 0 VU pegged at -16 dBFS — typical-content levels swing across most of the dial
+    // without slamming the needle on every transient. Visible range -20..+3 VU.
+    private const double ZeroVuDbFs = -16.0;
+    private const double VuMin = -20.0;
+    private const double VuMax =   3.0;
+
+    private static double DbFsToVuPosition(double dbFs)
+    {
+        double vu = dbFs - ZeroVuDbFs;
+        return Math.Clamp((vu - VuMin) / (VuMax - VuMin), 0.0, 1.0);
+    }
 
     public void Dispose() => Stop();
 }
