@@ -1,0 +1,112 @@
+<Window x:Class="VuMeter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:VuMeter"
+        Title="VU Meter" Height="320" Width="260"
+        ResizeMode="CanMinimize"
+        Background="#1a1a1a"
+        WindowStyle="SingleBorderWindow"
+        Topmost="False">
+
+    <Window.Resources>
+        <!-- Green-to-yellow-to-red gradient for bars -->
+        <LinearGradientBrush x:Key="MeterGradient" StartPoint="0,1" EndPoint="0,0">
+            <GradientStop Color="#00cc44" Offset="0.0"/>
+            <GradientStop Color="#00cc44" Offset="0.6"/>
+            <GradientStop Color="#ffcc00" Offset="0.75"/>
+            <GradientStop Color="#ff4400" Offset="0.90"/>
+            <GradientStop Color="#ff0000" Offset="1.0"/>
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="MeterBg" Color="#0d0d0d"/>
+        <SolidColorBrush x:Key="PeakBrush" Color="#ff2200"/>
+        <SolidColorBrush x:Key="LabelBrush" Color="#888888"/>
+    </Window.Resources>
+
+    <Grid Margin="16,12,16,12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Meter bars side by side -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT channel -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="L" Foreground="{StaticResource LabelBrush}"
+                           FontFamily="Consolas" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                <Border Grid.Row="1" Background="{StaticResource MeterBg}"
+                        BorderBrush="#333" BorderThickness="1" CornerRadius="2">
+                    <Grid>
+                        <!-- Bar fill — clipped from bottom -->
+                        <Rectangle x:Name="LeftBar"
+                                   Fill="{StaticResource MeterGradient}"
+                                   VerticalAlignment="Bottom"
+                                   Height="0"/>
+                        <!-- Peak hold indicator -->
+                        <Rectangle x:Name="LeftPeak"
+                                   Fill="{StaticResource PeakBrush}"
+                                   Height="3"
+                                   VerticalAlignment="Bottom"
+                                   Margin="0,0,0,0"/>
+                        <!-- Segment grid overlay -->
+                        <local:SegmentOverlay/>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- RIGHT channel -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="R" Foreground="{StaticResource LabelBrush}"
+                           FontFamily="Consolas" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                <Border Grid.Row="1" Background="{StaticResource MeterBg}"
+                        BorderBrush="#333" BorderThickness="1" CornerRadius="2">
+                    <Grid>
+                        <Rectangle x:Name="RightBar"
+                                   Fill="{StaticResource MeterGradient}"
+                                   VerticalAlignment="Bottom"
+                                   Height="0"/>
+                        <Rectangle x:Name="RightPeak"
+                                   Fill="{StaticResource PeakBrush}"
+                                   Height="3"
+                                   VerticalAlignment="Bottom"
+                                   Margin="0,0,0,0"/>
+                        <local:SegmentOverlay/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- dB scale labels -->
+        <Grid Grid.Row="1" Margin="0,6,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <local:DbScaleBar Grid.Column="0"/>
+            <local:DbScaleBar Grid.Column="2"/>
+        </Grid>
+
+        <!-- Status bar -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+            <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#333333" Margin="0,0,6,0" VerticalAlignment="Center"/>
+            <TextBlock x:Name="StatusText" Text="No audio device" Foreground="{StaticResource LabelBrush}"
+                       FontFamily="Consolas" FontSize="10" VerticalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Window>
